@@ -77,10 +77,9 @@ public class MainWindow {
         label.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if ((e.getButton() == MouseEvent.BUTTON1)) {
-                    if (e.getButton() == MouseEvent.BUTTON1) {
-                        start.setLocation(e.getLocationOnScreen());
-                        startLocation.setLocation(label.getLocation());
-                    }
+                    frame.getContentPane().setComponentZOrder(label, 0);
+                    start.setLocation(e.getLocationOnScreen());
+                    startLocation.setLocation(label.getLocation());
                 }
             }
         });
