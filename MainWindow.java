@@ -9,15 +9,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.LabelUI;
 import java.awt.event.ActionEvent;
@@ -30,16 +27,20 @@ import java.util.Random;
  */
 public class MainWindow {
     
-    private final int PUZZLE_IMAGE_WIDTH = 1000;
-    private int PUZZLE_IMAGE_HEIGHT;
-    private final int PUZZLE_ROWS = 10;
-    private final int PUZZLE_COLUMNS = 15;
+    private final int puzzleImageWidth;
+    private int puzzleImageHeight;
+    private final int puzzleRows;
+    private final int puzzleColumns;
     
     private JLabel[][] piecesLabels;
     private List<HashMap<Point,JLabel>> solvedParts;
     private MyLabelUI lu;
     
-    public MainWindow() {
+    public MainWindow(BufferedImage img, int puzzleImageWidth, int puzzleColumns, int puzzleRows) {
+        this.puzzleImageWidth = puzzleImageWidth;
+        this.puzzleColumns = puzzleColumns;
+        this.puzzleRows = puzzleRows;
+        
         solvedParts = new ArrayList<>();
         
         final JFrame frame = new JFrame();
@@ -49,18 +50,16 @@ public class MainWindow {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(null);
         
-        BufferedImage img = this.readImg();
-        
         if (img != null) {
-            PUZZLE_IMAGE_HEIGHT = PUZZLE_IMAGE_WIDTH*img.getHeight()/img.getWidth();
+            puzzleImageHeight = puzzleImageWidth*img.getHeight()/img.getWidth();
 
-            ImagePuzzle puzzle = new ImagePuzzle(img, PUZZLE_IMAGE_WIDTH, PUZZLE_COLUMNS, PUZZLE_ROWS);
+            ImagePuzzle puzzle = new ImagePuzzle(img, puzzleImageWidth, puzzleColumns, puzzleRows);
 
             piecesLabels = new JLabel[puzzle.getRows()][];
             for (int a = 0; a < puzzle.getRows(); a++) {
                 piecesLabels[a] = new JLabel[puzzle.getColumns()];
                 for (int b = 0; b < puzzle.getColumns(); b++) {
-                    piecesLabels[a][b] = this.showImg(frame, puzzle.getPiece(b, a), 10+PUZZLE_IMAGE_WIDTH/PUZZLE_COLUMNS*b, 10+PUZZLE_IMAGE_HEIGHT/PUZZLE_ROWS*a, b, a);
+                    piecesLabels[a][b] = this.showImg(frame, puzzle.getPiece(b, a), 10+puzzleImageWidth/puzzleColumns*b, 10+puzzleImageHeight/puzzleRows*a, b, a);
                     addConnectCorrection(frame, piecesLabels[a][b], b, a);
                     HashMap<Point,JLabel> m = new HashMap<>();
                     m.put(new Point(b, a), piecesLabels[a][b]);
@@ -68,7 +67,7 @@ public class MainWindow {
                 }
             }
 
-            frame.setBounds(100, 100, (int)(PUZZLE_IMAGE_WIDTH*1.5), (int)(PUZZLE_IMAGE_HEIGHT*1.5));
+            frame.setBounds(100, 100, (int)(puzzleImageWidth*1.5), (int)(puzzleImageHeight*1.5));
             frame.setVisible(true);
             
             Timer timer = new Timer(5000, new ActionListener() {
@@ -94,24 +93,6 @@ public class MainWindow {
     
     private void makeLabelUI(JFrame frame) {
         lu = new MyLabelUI();
-    }
-    
-    private BufferedImage readImg() {
-        JFileChooser file = new JFileChooser();
-        file.removeChoosableFileFilter(file.getFileFilter());
-        file.addChoosableFileFilter(new FileNameExtensionFilter("images", new String[] {"png", "jpg"}));
-        
-        if (file.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            BufferedImage img = null;
-            try {
-                img = ImageIO.read(file.getSelectedFile());
-            } catch (IOException e) {
-                return null;
-            }
-            return img;
-        } else {
-            return null;
-        }
     }
     
     private JLabel showImg(final JFrame frame, BufferedImage img, final int x, final int y, final int column, final int row) {
@@ -169,8 +150,8 @@ public class MainWindow {
     }
     
     private void addConnectCorrection(JFrame frame, final JLabel piece, final int column, final int row) {
-        final int pieceHeight = PUZZLE_IMAGE_HEIGHT / PUZZLE_ROWS;
-        final int pieceWidth = PUZZLE_IMAGE_WIDTH / PUZZLE_COLUMNS;
+        final int pieceHeight = puzzleImageHeight / puzzleRows;
+        final int pieceWidth = puzzleImageWidth / puzzleColumns;
         piece.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if ((e.getButton() == MouseEvent.BUTTON1)) {
@@ -178,9 +159,9 @@ public class MainWindow {
                     
                     Point2D position = piece.getLocation();
                     JLabel topPiece = row > 0 ? piecesLabels[row - 1][column] : null;
-                    JLabel bottomPiece = row < PUZZLE_ROWS - 1 ? piecesLabels[row + 1][column] : null;
+                    JLabel bottomPiece = row < puzzleRows - 1 ? piecesLabels[row + 1][column] : null;
                     JLabel leftPiece = column > 0 ? piecesLabels[row][column - 1] : null;
-                    JLabel rightPiece = column < PUZZLE_COLUMNS - 1 ? piecesLabels[row][column + 1] : null;
+                    JLabel rightPiece = column < puzzleColumns - 1 ? piecesLabels[row][column + 1] : null;
                     if ((topPiece != null) && (new Point2D.Double(topPiece.getX(), topPiece.getY() + pieceHeight).distance(position) < 10)) {
                         Point diff = new Point(topPiece.getX() - piece.getX(), topPiece.getY() + pieceHeight - piece.getY());
                         HashMap<Point,JLabel> topPieceCollection = getSolvedPart(column, row - 1);
