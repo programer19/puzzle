@@ -20,6 +20,9 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.LabelUI;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
 
 /**
  *
@@ -66,6 +69,23 @@ public class MainWindow {
 
             frame.setBounds(100, 100, (int)(PUZZLE_IMAGE_WIDTH*1.5), (int)(PUZZLE_IMAGE_HEIGHT*1.5));
             frame.setVisible(true);
+            
+            Timer timer = new Timer(5000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    Random randomizer = new Random();
+                    for (JLabel[] piecesRow: piecesLabels) {
+                        for (JLabel piece: piecesRow) {
+                            piece.setLocation(
+                                    randomizer.nextInt(frame.getContentPane().getWidth() - piece.getWidth()), 
+                                    randomizer.nextInt(frame.getContentPane().getHeight() - piece.getHeight())
+                            );
+                        }
+                    }
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
         } else {
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         }
