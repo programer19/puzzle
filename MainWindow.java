@@ -42,9 +42,10 @@ public class MainWindow {
     public MainWindow() {
         solvedParts = new ArrayList<>();
         
-        JFrame frame = new JFrame();
+        final JFrame frame = new JFrame();
         makeLabelUI(frame);
         frame.setTitle("Puzzle");
+        frame.getContentPane().setBackground(new Color(80, 80, 80));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(null);
         
@@ -113,21 +114,21 @@ public class MainWindow {
         }
     }
     
-    private JLabel showImg(JFrame frame, BufferedImage img, int x, int y, int column, int row) {
-        ImageIcon icon = new ImageIcon(img);
-        JLabel label = new JLabel(icon);
+    private JLabel showImg(final JFrame frame, BufferedImage img, final int x, final int y, final int column, final int row) {
+        final ImageIcon icon = new ImageIcon(img);
+        final JLabel label = new JLabel(icon);
         label.setUI(lu);
         label.setLocation(x, y);
         label.setSize(img.getWidth(), img.getHeight());
         frame.add(label);
-        Point2D start = new Point2D.Double();
+        final Point2D start = new Point2D.Double();
         label.addMouseListener(new MouseInputAdapter() {
-            public void mousePressed(MouseEvent e) {
+            public void mousePressed(final MouseEvent e) {
                 if ((e.getButton() == MouseEvent.BUTTON1)) {
                     start.setLocation(e.getLocationOnScreen());
                     
-                    HashMap<Point,JLabel> pieceCollection = new HashMap<>();
-                    HashMap<Point,Point2D> locationsCollection = new HashMap<>();
+                    final HashMap<Point,JLabel> pieceCollection = new HashMap<>();
+                    final HashMap<Point,Point2D> locationsCollection = new HashMap<>();
                     for (HashMap<Point,JLabel> solvedPart: solvedParts) {
                         if (solvedPart.containsKey(new Point(column, row))) {
                             pieceCollection.putAll(solvedPart);
@@ -139,7 +140,7 @@ public class MainWindow {
                         }
                     }
 
-                    MouseInputAdapter dragAdapter = new MouseInputAdapter() {
+                    final MouseInputAdapter dragAdapter = new MouseInputAdapter() {
                         public void mouseDragged(MouseEvent eMove) {
                             Point2D current = e.getLocationOnScreen();
                             
@@ -167,9 +168,9 @@ public class MainWindow {
         return label;
     }
     
-    private void addConnectCorrection(JFrame frame, JLabel piece, int column, int row) {
-        int pieceHeight = PUZZLE_IMAGE_HEIGHT / PUZZLE_ROWS;
-        int pieceWidth = PUZZLE_IMAGE_WIDTH / PUZZLE_COLUMNS;
+    private void addConnectCorrection(JFrame frame, final JLabel piece, final int column, final int row) {
+        final int pieceHeight = PUZZLE_IMAGE_HEIGHT / PUZZLE_ROWS;
+        final int pieceWidth = PUZZLE_IMAGE_WIDTH / PUZZLE_COLUMNS;
         piece.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if ((e.getButton() == MouseEvent.BUTTON1)) {
