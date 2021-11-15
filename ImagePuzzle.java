@@ -47,7 +47,7 @@ public class ImagePuzzle {
     private BufferedImage scaleImage(BufferedImage image) {
         int x = puzzleWidth/puzzleColumns/3;
         int y = puzzleHeight/puzzleRows/3;
-        BufferedImage scaledImg = new BufferedImage(2*x+puzzleWidth, 2*y+puzzleHeight, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage scaledImg = new BufferedImage(2*x+puzzleWidth+1, 2*y+puzzleHeight+1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D scaledImgG = scaledImg.createGraphics();
         scaledImgG.drawImage(image.getScaledInstance(puzzleWidth, puzzleHeight, Image.SCALE_SMOOTH), x, y, null);
         scaledImgG.dispose();
