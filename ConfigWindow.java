@@ -56,27 +56,17 @@ public class ConfigWindow {
         goButton.setVisible(false);
         frame.getContentPane().add(goButton);
         
+        final GoButtonAction goClick = new GoButtonAction(frame, puzzleColumnsField, puzzleRowsField, puzzleImageWidthField);
+        
+        goButton.addActionListener(goClick);
+        
         fileManagerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                final BufferedImage source = readImg();
+                goClick.setSource(readImg());
                 goButton.setVisible(true);
-                
-                goButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent ae) {
-                        MainWindow window = new MainWindow(
-                                source, 
-                                Integer.valueOf(puzzleImageWidthField.getText()),
-                                Integer.valueOf(puzzleColumnsField.getText()),
-                                Integer.valueOf(puzzleRowsField.getText())
-                        );
-                        frame.setVisible(false);
-                    }
-                });
             }
         });
-        
     }
     
     private BufferedImage readImg() {
@@ -94,6 +84,36 @@ public class ConfigWindow {
             return img;
         } else {
             return null;
+        }
+    }
+    
+    private static class GoButtonAction implements ActionListener {
+        private BufferedImage src;
+        private JFrame frame;
+        private JTextField puzzleColumnsField;
+        private JTextField puzzleRowsField;
+        private JTextField puzzleImageWidthField;
+        
+        public GoButtonAction(JFrame frame, JTextField puzzleColumnsField, JTextField puzzleRowsField, JTextField puzzleImageWidthField) {
+            this.frame = frame;
+            this.puzzleColumnsField = puzzleColumnsField;
+            this.puzzleRowsField = puzzleRowsField;
+            this.puzzleImageWidthField = puzzleImageWidthField;
+        }
+
+        public void setSource(BufferedImage src) {
+            this.src = src;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            MainWindow window = new MainWindow(
+                    src, 
+                    Integer.valueOf(puzzleImageWidthField.getText()),
+                    Integer.valueOf(puzzleColumnsField.getText()),
+                    Integer.valueOf(puzzleRowsField.getText())
+            );
+            frame.setVisible(false);
         }
     }
 }
