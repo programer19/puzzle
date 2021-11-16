@@ -13,7 +13,10 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -29,8 +32,8 @@ public class ConfigWindow {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Puzzle config");
         frame.setLayout(null);
-        frame.getContentPane().setLayout(new GridLayout(4, 2, 10, 10));
-        frame.setSize(300, 200);
+        frame.getContentPane().setLayout(new GridLayout(5, 2, 10, 10));
+        frame.setSize(300, 250);
         createControls();
         frame.setVisible(true);
 
@@ -49,14 +52,18 @@ public class ConfigWindow {
         final JTextField puzzleImageWidthField = new JTextField("1000");
         frame.getContentPane().add(puzzleImageWidthField);
         
-        JButton fileManagerButton = new JButton("Выберите изображение");
+        JButton fileManagerButton = new JButton("<html>Выберите<br>изображение</html>");
         frame.getContentPane().add(fileManagerButton);
         
         final JButton goButton = new JButton("Начать");
-        goButton.setVisible(false);
+        goButton.setVisible(true);
         frame.getContentPane().add(goButton);
         
-        final GoButtonAction goClick = new GoButtonAction(frame, puzzleColumnsField, puzzleRowsField, puzzleImageWidthField);
+        final JLabel validationLabel = new JLabel("Поля заполнены неверно");
+        validationLabel.setVisible(false);
+        frame.getContentPane().add(validationLabel);
+        
+        final GoButtonAction goClick = new GoButtonAction(frame, validationLabel, puzzleColumnsField, puzzleRowsField, puzzleImageWidthField);
         
         goButton.addActionListener(goClick);
         
@@ -64,9 +71,15 @@ public class ConfigWindow {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 goClick.setSource(readImg());
-                goButton.setVisible(true);
+                validationLabel.setVisible(false);
             }
         });
+        
+        ValidationClearingListener validationClearingListener = new ValidationClearingListener(validationLabel);
+        
+        puzzleColumnsField.getDocument().addDocumentListener(validationClearingListener);
+        puzzleRowsField.getDocument().addDocumentListener(validationClearingListener);
+        puzzleImageWidthField.getDocument().addDocumentListener(validationClearingListener);
     }
     
     private BufferedImage readImg() {
@@ -87,15 +100,42 @@ public class ConfigWindow {
         }
     }
     
+    private static class ValidationClearingListener implements DocumentListener {
+        
+        private JLabel label;
+        
+        ValidationClearingListener(JLabel label) {
+            this.label = label;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent de) {
+            label.setVisible(false);
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent de) {
+            label.setVisible(false);
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent de) {
+            label.setVisible(false);
+        }
+        
+    }
+    
     private static class GoButtonAction implements ActionListener {
         private BufferedImage src;
         private JFrame frame;
+        private JLabel validationLabel;
         private JTextField puzzleColumnsField;
         private JTextField puzzleRowsField;
         private JTextField puzzleImageWidthField;
         
-        public GoButtonAction(JFrame frame, JTextField puzzleColumnsField, JTextField puzzleRowsField, JTextField puzzleImageWidthField) {
+        public GoButtonAction(JFrame frame, JLabel validationLabel, JTextField puzzleColumnsField, JTextField puzzleRowsField, JTextField puzzleImageWidthField) {
             this.frame = frame;
+            this.validationLabel = validationLabel;
             this.puzzleColumnsField = puzzleColumnsField;
             this.puzzleRowsField = puzzleRowsField;
             this.puzzleImageWidthField = puzzleImageWidthField;
@@ -107,13 +147,30 @@ public class ConfigWindow {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            MainWindow window = new MainWindow(
-                    src, 
-                    Integer.valueOf(puzzleImageWidthField.getText()),
-                    Integer.valueOf(puzzleColumnsField.getText()),
-                    Integer.valueOf(puzzleRowsField.getText())
-            );
-            frame.setVisible(false);
+            if (!validateFields()) {
+                validationLabel.setVisible(true);
+            } else {
+                MainWindow window = new MainWindow(
+                        src, 
+                        Integer.valueOf(puzzleImageWidthField.getText()),
+                        Integer.valueOf(puzzleColumnsField.getText()),
+                        Integer.valueOf(puzzleRowsField.getText())
+                );
+                frame.setVisible(false);
+            }
+        }
+        
+        private boolean validateFields() {
+            boolean notValid = true;
+            try {
+                notValid = ((src == null)
+                 || (Integer.valueOf(puzzleImageWidthField.getText()) <= 0)
+                 || (Integer.valueOf(puzzleColumnsField.getText()) <= 0)
+                 || (Integer.valueOf(puzzleRowsField.getText()) <= 0)
+                );
+            } catch (NumberFormatException e) {
+            }
+            return !notValid;
         }
     }
 }
