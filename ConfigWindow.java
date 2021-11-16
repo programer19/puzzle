@@ -59,7 +59,7 @@ public class ConfigWindow {
         goButton.setVisible(true);
         frame.getContentPane().add(goButton);
         
-        final JLabel validationLabel = new JLabel("Поля заполнены неверно");
+        final JLabel validationLabel = new JLabel("<html>Поля заполнены<br>неверно</html>");
         validationLabel.setVisible(false);
         frame.getContentPane().add(validationLabel);
         
