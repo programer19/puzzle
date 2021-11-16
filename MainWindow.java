@@ -67,7 +67,7 @@ public class MainWindow {
                 }
             }
 
-            frame.setBounds(100, 100, (int)(puzzleImageWidth*1.5), (int)(puzzleImageHeight*1.5));
+            frame.setBounds(100, 100, (int)(puzzleImageWidth + puzzleImageWidth/puzzleColumns + 20), (int)(puzzleImageHeight + puzzleImageHeight/puzzleRows + 80));
             frame.setVisible(true);
             
             Timer timer = new Timer(5000, new ActionListener() {
